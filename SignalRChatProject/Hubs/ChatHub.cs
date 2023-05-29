@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using SignalRChatProject.Hubs.Interface;
 
 namespace SignalRChatProject.Hubs
 {
-    public class ChatHub : Hub
+    public class StronglyTypedChatHub : Hub<IChatClient>
     {
-        public async Task SendMessage(string user, string message)// this method can be called by a connected client to send a message to all clients.
-        {
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
+        public async Task SendMessage(string user, string message)
+            => await Clients.All.ReceiveMessage(user, message);
+
+        public async Task SendMessageToCaller(string user, string message)
+            => await Clients.Caller.ReceiveMessage(user, message);
+
+        public async Task SendMessageToGroup(string user, string message)
+            => await Clients.Group("SignalR Users").ReceiveMessage(user, message);
     }
 }
